@@ -6,20 +6,25 @@ import (
 	"fmt"
 	"grpc_currency_converter/currency_converter/proto"
 	"grpc_currency_converter/dao"
-	//"grpc_currency_converter/model"
 )
 
 type CurrencyService struct {
-	DB *sql.DB
+	proto.UnimplementedCurrencyConverterServer
+	DAO dao.CurrencyDAO
+	DB  *sql.DB
+}
+
+func NewCurrencyService(dao dao.CurrencyDAO, db *sql.DB) *CurrencyService {
+	return &CurrencyService{DAO: dao, DB: db}
 }
 
 func (s *CurrencyService) ConvertCurrency(ctx context.Context, req *proto.ConvertRequest) (*proto.ConvertResponse, error) {
-	fromRate, err := dao.GetCurrencyRate(s.DB, req.Money.Currency)
+	fromRate, err := s.DAO.GetCurrencyRate(req.Money.Currency)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching from currency: %v", err)
 	}
 
-	toRate, err := dao.GetCurrencyRate(s.DB, req.ToCurrency)
+	toRate, err := s.DAO.GetCurrencyRate(req.ToCurrency)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching to currency: %v", err)
 	}

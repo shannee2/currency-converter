@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"sync"
 
 	_ "github.com/lib/pq"
 )
@@ -16,30 +17,33 @@ const (
 	dbname   = "currency"
 )
 
-var db *sql.DB
+var (
+	db     *sql.DB
+	dbOnce sync.Once
+)
 
 func InitDB() (*sql.DB, error) {
-	if db != nil {
-		return db, nil
-	}
-
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-
 	var err error
-	db, err = sql.Open("postgres", psqlInfo)
-	if err != nil {
-		return nil, err
-	}
+	dbOnce.Do(func() {
+		psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+			"password=%s dbname=%s sslmode=disable",
+			host, port, user, password, dbname)
 
-	err = db.Ping()
-	if err != nil {
-		return nil, err
-	}
+		db, err = sql.Open("postgres", psqlInfo)
+		if err != nil {
+			log.Fatalf("Failed to connect to database: %v", err)
+			return
+		}
 
-	log.Println("Database connected successfully!")
-	return db, nil
+		if err = db.Ping(); err != nil {
+			log.Fatalf("Failed to ping database: %v", err)
+			return
+		}
+
+		log.Println("Database connected successfully!")
+	})
+
+	return db, err
 }
 
 func GetDB() *sql.DB {
