@@ -2,11 +2,13 @@ package dao
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"grpc_currency_converter/model"
 	"log"
 )
 
+// Fetch exchange rate from DB
 func GetCurrencyRate(db *sql.DB, currency string) (float64, error) {
 	var rate float64
 	err := db.QueryRow("SELECT rate FROM currencies WHERE code = $1", currency).Scan(&rate)
@@ -16,6 +18,7 @@ func GetCurrencyRate(db *sql.DB, currency string) (float64, error) {
 	return rate, nil
 }
 
+// Add new currency to DB
 func AddCurrency(currency model.Currency) error {
 	db := GetDB()
 	query := "INSERT INTO currencies (code, rate) VALUES ($1, $2)"
@@ -27,6 +30,7 @@ func AddCurrency(currency model.Currency) error {
 	return nil
 }
 
+// Retrieve currency details
 func GetCurrency(code string) (*model.Currency, error) {
 	db := GetDB()
 	var currency model.Currency
@@ -34,7 +38,7 @@ func GetCurrency(code string) (*model.Currency, error) {
 
 	err := db.QueryRow(query, code).Scan(&currency.Code, &currency.Rate)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
 		log.Println("Error fetching currency:", err)

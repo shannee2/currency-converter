@@ -18,7 +18,6 @@ const (
 
 var db *sql.DB
 
-// InitDB initializes the database connection
 func InitDB() (*sql.DB, error) {
 	if db != nil {
 		return db, nil
@@ -34,7 +33,6 @@ func InitDB() (*sql.DB, error) {
 		return nil, err
 	}
 
-	// Check if the connection is alive
 	err = db.Ping()
 	if err != nil {
 		return nil, err

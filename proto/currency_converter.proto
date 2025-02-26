@@ -8,12 +8,16 @@ service CurrencyConverter {
   rpc ConvertCurrency (ConvertRequest) returns (ConvertResponse);
 }
 
-message ConvertRequest {
+message Money {
   double amount = 1;
-  string from_currency = 2;
-  string to_currency = 3;
+  string currency = 2;
+}
+
+message ConvertRequest {
+  Money money = 1;
+  string to_currency = 2;
 }
 
 message ConvertResponse {
-  double converted_amount = 1;
+  Money converted_money = 1;
 }
