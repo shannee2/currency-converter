@@ -2,14 +2,12 @@ package dao
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
-	"grpc_currency_converter/model"
-	"log"
 )
 
 type CurrencyDAO interface {
-	GetCurrencyRate(currency string) (float64, error)
+	GetConversionRate(from, to string) (float64, error)
+	UpdateConversionRate(currency string, newRate float64) error
 }
 
 type CurrencyDAOImpl struct {
@@ -20,46 +18,30 @@ func NewCurrencyDAOImpl(db *sql.DB) *CurrencyDAOImpl {
 	return &CurrencyDAOImpl{DB: db}
 }
 
-func (dao *CurrencyDAOImpl) GetCurrencyRate(currency string) (float64, error) {
+func (dao *CurrencyDAOImpl) GetConversionRate(from, to string) (float64, error) {
 	var rate float64
-	query := "SELECT rate FROM currencies WHERE code = $1"
+	code := fmt.Sprintf("%s%s", from, to) // e.g., "USDINR"
 
-	err := dao.DB.QueryRow(query, currency).Scan(&rate)
+	query := `SELECT rate FROM currencies WHERE code = $1`
+	err := dao.DB.QueryRow(query, code).Scan(&rate)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return 0, fmt.Errorf("currency rate not found for: %s", currency)
+			return 0, fmt.Errorf("conversion rate not found for: %s to %s", from, to)
 		}
-		return 0, fmt.Errorf("failed to fetch currency rate: %v", err)
+		return 0, fmt.Errorf("failed to fetch conversion rate: %v", err)
 	}
 
 	return rate, nil
 }
 
-func AddCurrency(currency model.Currency) error {
-	db := GetDB()
-	query := "INSERT INTO currencies (code, rate) VALUES ($1, $2)"
-	_, err := db.Exec(query, currency.Code, currency.Rate)
+func (dao *CurrencyDAOImpl) UpdateConversionRate(currency string, newRate float64) error {
+	query := `UPDATE currencies SET rate = $1 WHERE code = $2`
+	_, err := dao.DB.Exec(query, newRate, currency)
 	if err != nil {
-		log.Println("Error inserting currency:", err)
-		return err
+		return fmt.Errorf("failed to update rate for %s: %v", currency, err)
 	}
+
+	fmt.Printf("Updated %s to new rate: %.6f\n", currency, newRate)
 	return nil
-}
-
-// Retrieve currency details
-func GetCurrency(code string) (*model.Currency, error) {
-	db := GetDB()
-	var currency model.Currency
-	query := "SELECT code, rate FROM currencies WHERE code=$1"
-
-	err := db.QueryRow(query, code).Scan(&currency.Code, &currency.Rate)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
-		log.Println("Error fetching currency:", err)
-		return nil, err
-	}
-
-	return &currency, nil
 }

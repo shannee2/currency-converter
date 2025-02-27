@@ -4,8 +4,15 @@ package currency;
 
 option go_package = "currency_converter/proto";
 
-service CurrencyConverter {
-  rpc ConvertCurrency (ConvertRequest) returns (ConvertResponse);
+service CurrencyService {
+  rpc ConvertCurrency(ConvertRequest) returns (ConvertResponse);
+  rpc GetAllRates(Empty) returns (AllRatesResponse);
+}
+
+message Empty {}
+
+message AllRatesResponse {
+  map<string, double> rates = 1;
 }
 
 message Money {

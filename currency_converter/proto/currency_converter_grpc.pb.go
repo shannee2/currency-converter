@@ -19,101 +19,139 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CurrencyConverter_ConvertCurrency_FullMethodName = "/currency.CurrencyConverter/ConvertCurrency"
+	CurrencyService_ConvertCurrency_FullMethodName = "/currency.CurrencyService/ConvertCurrency"
+	CurrencyService_GetAllRates_FullMethodName     = "/currency.CurrencyService/GetAllRates"
 )
 
-// CurrencyConverterClient is the client API for CurrencyConverter service.
+// CurrencyServiceClient is the client API for CurrencyService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type CurrencyConverterClient interface {
+type CurrencyServiceClient interface {
 	ConvertCurrency(ctx context.Context, in *ConvertRequest, opts ...grpc.CallOption) (*ConvertResponse, error)
+	GetAllRates(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*AllRatesResponse, error)
 }
 
-type currencyConverterClient struct {
+type currencyServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewCurrencyConverterClient(cc grpc.ClientConnInterface) CurrencyConverterClient {
-	return &currencyConverterClient{cc}
+func NewCurrencyServiceClient(cc grpc.ClientConnInterface) CurrencyServiceClient {
+	return &currencyServiceClient{cc}
 }
 
-func (c *currencyConverterClient) ConvertCurrency(ctx context.Context, in *ConvertRequest, opts ...grpc.CallOption) (*ConvertResponse, error) {
+func (c *currencyServiceClient) ConvertCurrency(ctx context.Context, in *ConvertRequest, opts ...grpc.CallOption) (*ConvertResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ConvertResponse)
-	err := c.cc.Invoke(ctx, CurrencyConverter_ConvertCurrency_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, CurrencyService_ConvertCurrency_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// CurrencyConverterServer is the server API for CurrencyConverter service.
-// All implementations must embed UnimplementedCurrencyConverterServer
-// for forward compatibility.
-type CurrencyConverterServer interface {
-	ConvertCurrency(context.Context, *ConvertRequest) (*ConvertResponse, error)
-	mustEmbedUnimplementedCurrencyConverterServer()
+func (c *currencyServiceClient) GetAllRates(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*AllRatesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AllRatesResponse)
+	err := c.cc.Invoke(ctx, CurrencyService_GetAllRates_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
-// UnimplementedCurrencyConverterServer must be embedded to have
+// CurrencyServiceServer is the server API for CurrencyService service.
+// All implementations must embed UnimplementedCurrencyServiceServer
+// for forward compatibility.
+type CurrencyServiceServer interface {
+	ConvertCurrency(context.Context, *ConvertRequest) (*ConvertResponse, error)
+	GetAllRates(context.Context, *Empty) (*AllRatesResponse, error)
+	mustEmbedUnimplementedCurrencyServiceServer()
+}
+
+// UnimplementedCurrencyServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedCurrencyConverterServer struct{}
+type UnimplementedCurrencyServiceServer struct{}
 
-func (UnimplementedCurrencyConverterServer) ConvertCurrency(context.Context, *ConvertRequest) (*ConvertResponse, error) {
+func (UnimplementedCurrencyServiceServer) ConvertCurrency(context.Context, *ConvertRequest) (*ConvertResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ConvertCurrency not implemented")
 }
-func (UnimplementedCurrencyConverterServer) mustEmbedUnimplementedCurrencyConverterServer() {}
-func (UnimplementedCurrencyConverterServer) testEmbeddedByValue()                           {}
+func (UnimplementedCurrencyServiceServer) GetAllRates(context.Context, *Empty) (*AllRatesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllRates not implemented")
+}
+func (UnimplementedCurrencyServiceServer) mustEmbedUnimplementedCurrencyServiceServer() {}
+func (UnimplementedCurrencyServiceServer) testEmbeddedByValue()                         {}
 
-// UnsafeCurrencyConverterServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to CurrencyConverterServer will
+// UnsafeCurrencyServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CurrencyServiceServer will
 // result in compilation errors.
-type UnsafeCurrencyConverterServer interface {
-	mustEmbedUnimplementedCurrencyConverterServer()
+type UnsafeCurrencyServiceServer interface {
+	mustEmbedUnimplementedCurrencyServiceServer()
 }
 
-func RegisterCurrencyConverterServer(s grpc.ServiceRegistrar, srv CurrencyConverterServer) {
-	// If the following call pancis, it indicates UnimplementedCurrencyConverterServer was
+func RegisterCurrencyServiceServer(s grpc.ServiceRegistrar, srv CurrencyServiceServer) {
+	// If the following call pancis, it indicates UnimplementedCurrencyServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&CurrencyConverter_ServiceDesc, srv)
+	s.RegisterService(&CurrencyService_ServiceDesc, srv)
 }
 
-func _CurrencyConverter_ConvertCurrency_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CurrencyService_ConvertCurrency_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ConvertRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CurrencyConverterServer).ConvertCurrency(ctx, in)
+		return srv.(CurrencyServiceServer).ConvertCurrency(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: CurrencyConverter_ConvertCurrency_FullMethodName,
+		FullMethod: CurrencyService_ConvertCurrency_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CurrencyConverterServer).ConvertCurrency(ctx, req.(*ConvertRequest))
+		return srv.(CurrencyServiceServer).ConvertCurrency(ctx, req.(*ConvertRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// CurrencyConverter_ServiceDesc is the grpc.ServiceDesc for CurrencyConverter service.
+func _CurrencyService_GetAllRates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CurrencyServiceServer).GetAllRates(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CurrencyService_GetAllRates_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CurrencyServiceServer).GetAllRates(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// CurrencyService_ServiceDesc is the grpc.ServiceDesc for CurrencyService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var CurrencyConverter_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "currency.CurrencyConverter",
-	HandlerType: (*CurrencyConverterServer)(nil),
+var CurrencyService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "currency.CurrencyService",
+	HandlerType: (*CurrencyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ConvertCurrency",
-			Handler:    _CurrencyConverter_ConvertCurrency_Handler,
+			Handler:    _CurrencyService_ConvertCurrency_Handler,
+		},
+		{
+			MethodName: "GetAllRates",
+			Handler:    _CurrencyService_GetAllRates_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
