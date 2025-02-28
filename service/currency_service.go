@@ -4,8 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"grpc_currency_converter/currency_converter/proto"
 	"grpc_currency_converter/dao"
+	"grpc_currency_converter/proto"
 )
 
 type CurrencyService struct {
@@ -33,31 +33,14 @@ func (s *CurrencyService) ConvertCurrency(ctx context.Context, req *proto.Conver
 
 	fmt.Printf("Converting %.2f %s to %s at rate %.6f\n", req.Money.Amount, req.Money.Currency, req.ToCurrency, conversionRate)
 
-	return &proto.ConvertResponse{
-		ConvertedMoney: &proto.Money{
-			Amount:   convertedAmount,
-			Currency: req.ToCurrency,
-		},
-	}, nil
+	return &proto.ConvertResponse{ConvertedMoney: convertedAmount}, nil
 }
 
 func (s *CurrencyService) GetAllRates(ctx context.Context, req *proto.Empty) (*proto.AllRatesResponse, error) {
-	rows, err := s.DB.Query("SELECT code, rate FROM currencies")
+	rates, err := s.DAO.GetAllRates()
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch rates: %v", err)
+		return nil, fmt.Errorf("error fetching all rates: %v", err)
 	}
-	defer rows.Close()
-
-	rates := make(map[string]float64)
-	for rows.Next() {
-		var code string
-		var rate float64
-		if err := rows.Scan(&code, &rate); err != nil {
-			return nil, err
-		}
-		rates[code] = rate
-	}
-
 	return &proto.AllRatesResponse{Rates: rates}, nil
 }
 

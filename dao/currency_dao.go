@@ -8,6 +8,7 @@ import (
 type CurrencyDAO interface {
 	GetConversionRate(from, to string) (float64, error)
 	UpdateConversionRate(currency string, newRate float64) error
+	GetAllRates() (map[string]float64, error)
 }
 
 type CurrencyDAOImpl struct {
@@ -44,4 +45,24 @@ func (dao *CurrencyDAOImpl) UpdateConversionRate(currency string, newRate float6
 
 	fmt.Printf("Updated %s to new rate: %.6f\n", currency, newRate)
 	return nil
+}
+
+func (dao *CurrencyDAOImpl) GetAllRates() (map[string]float64, error) {
+	rows, err := dao.DB.Query("SELECT code, rate FROM currencies")
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch rates: %v", err)
+	}
+	defer rows.Close()
+
+	rates := make(map[string]float64)
+	for rows.Next() {
+		var code string
+		var rate float64
+		if err := rows.Scan(&code, &rate); err != nil {
+			return nil, err
+		}
+		rates[code] = rate
+	}
+
+	return rates, nil
 }
