@@ -1,11 +1,20 @@
 syntax = "proto3";
 
-package currency;
+package proto;
 
-option go_package = "currency_converter/proto";
+import "google/api/annotations.proto";
+
+
+option go_package = "grpc_currency_converter/proto";
+
 
 service CurrencyService {
-  rpc ConvertCurrency(ConvertRequest) returns (ConvertResponse);
+  rpc ConvertCurrency(ConvertRequest) returns (ConvertResponse){
+    option (google.api.http) = {
+      post: "/convert"
+      body: "*"
+    };
+  }
   rpc GetAllRates(Empty) returns (AllRatesResponse);
 }
 
@@ -14,6 +23,7 @@ message Empty {}
 message AllRatesResponse {
   map<string, double> rates = 1;
 }
+
 
 message Money {
   double amount = 1;
@@ -26,5 +36,5 @@ message ConvertRequest {
 }
 
 message ConvertResponse {
-  Money converted_money = 1;
+  double converted_money = 1;
 }

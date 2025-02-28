@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.29.3
-// source: proto/currency_converter.proto
+// source: currency_converter.proto
 
 package proto
 
@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CurrencyService_ConvertCurrency_FullMethodName = "/currency.CurrencyService/ConvertCurrency"
-	CurrencyService_GetAllRates_FullMethodName     = "/currency.CurrencyService/GetAllRates"
+	CurrencyService_ConvertCurrency_FullMethodName = "/proto.CurrencyService/ConvertCurrency"
+	CurrencyService_GetAllRates_FullMethodName     = "/proto.CurrencyService/GetAllRates"
 )
 
 // CurrencyServiceClient is the client API for CurrencyService service.
@@ -142,7 +142,7 @@ func _CurrencyService_GetAllRates_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CurrencyService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "currency.CurrencyService",
+	ServiceName: "proto.CurrencyService",
 	HandlerType: (*CurrencyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -155,5 +155,5 @@ var CurrencyService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/currency_converter.proto",
+	Metadata: "currency_converter.proto",
 }
