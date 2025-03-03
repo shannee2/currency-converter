@@ -4,14 +4,11 @@ import (
 	"grpc_currency_converter/consumer"
 	"grpc_currency_converter/dao"
 	"grpc_currency_converter/server"
-	"log"
+	//"log"
 )
 
 func main() {
-	db, err := dao.InitDB()
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
-	}
+	db := dao.InitDB() // Initialize DynamoDB
 
 	daoInstance := dao.NewCurrencyDAOImpl(db)
 

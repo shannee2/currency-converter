@@ -1,7 +1,6 @@
 package server
 
 import (
-	"database/sql"
 	"log"
 	"net"
 
@@ -9,11 +8,14 @@ import (
 	pb "grpc_currency_converter/proto"
 	"grpc_currency_converter/service"
 
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"google.golang.org/grpc"
 )
 
-func StartGrpcServer(db *sql.DB, daoInstance dao.CurrencyDAO) {
+// StartGrpcServer initializes the gRPC server with DynamoDB
+func StartGrpcServer(db *dynamodb.Client, daoInstance dao.CurrencyDAO) {
 	currencyService := service.NewCurrencyService(daoInstance, db)
+
 	listener, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("Failed to listen on port 50051: %v", err)
